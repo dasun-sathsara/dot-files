@@ -99,20 +99,21 @@ PACKAGES=(
     "eza"
     "fzf"
     "neovim"
+    "unzip"
+    "libgcc"
+    "gnumake"
 )
 
 for package in "${PACKAGES[@]}"; do
-    info "Installing $package..."
-    nix-env -iA "nixpkgs.$package"
-    check_exit_status "Failed to install $package."
-    success "$package installed successfully."
+    if nix-env -q | grep -w "$package" >/dev/null; then
+        success "$package is already installed. Skipping installation."
+    else
+        info "Installing $package..."
+        nix-env -iA "nixpkgs.$package"
+        check_exit_status "Failed to install $package."
+        success "$package installed successfully."
+    fi
 done
-
-# --------------------- Step 4: Set Zsh as Default Shell ----------------------
-# info "Setting Zsh as the default shell for the user."
-# chsh -s $(which zsh)
-# check_exit_status "Failed to set Zsh as the default shell."
-# success "Zsh is now the default shell."
 
 # --------------------- Step 5: Install Oh-My-Posh ----------------------------
 
@@ -147,4 +148,18 @@ mv "$TMP_DIR"/.config/* "$HOME/.config"
 rm -rf "$TMP_DIR"
 check_exit_status "Failed to move dot-files to the home directory or clean up."
 
-success "dot-files repository processed successfully.
+if [ -f "$HOME/.zshrc" ]; then
+    success ".zshrc file is present in the home directory."
+
+    info "Setting Zsh as the default shell for the current user."
+    chsh -s "$(command -v zsh)" || {
+        error "Failed to change the default shell. Ensure the current user has permission to change their own shell."
+        exit 1
+    }
+    success "Zsh is set as the default shell."
+else
+    error ".zshrc file is missing in the home directory. Check the dot-files cloning process."
+    exit 1
+fi
+
+success "dot-files repository processed successfully."
