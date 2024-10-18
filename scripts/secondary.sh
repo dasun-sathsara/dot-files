@@ -100,8 +100,7 @@ PACKAGES=(
     "fzf"
     "neovim"
     "unzip"
-    "libgcc"
-    "gnumake"
+    "libgccjit"
 )
 
 for package in "${PACKAGES[@]}"; do
@@ -131,9 +130,28 @@ fi
 # ----------- Step 6: Install NvChad (a Neovim configuration) -----------------
 
 info "Installing NvChad..."
-git clone https://github.com/NvChad/starter ~/.config/nvim
+NVCHAD_DIR="$HOME/.config/nvim"
+git clone https://github.com/NvChad/starter "$NVCHAD_DIR"
 check_exit_status "Failed to install NvChad."
 success "NvChad installed successfully."
+
+# Customizing NvChad with additional Lua configuration
+info "Applying custom configuration to NvChad's chadrc.lua..."
+CHADRC_PATH="$NVCHAD_DIR/lua/custom/chadrc.lua"
+mkdir -p "$(dirname "$CHADRC_PATH")"
+
+cat <<EOL >"$CHADRC_PATH"
+local opt = vim.opt
+local map = vim.api.nvim_set_keymap
+
+-- Map 'jj' to escape insert mode
+map('i', 'jj', '<Esc>', { noremap = true, silent = true })
+
+return M
+EOL
+
+check_exit_status "Failed to apply custom configuration to chadrc.lua."
+success "Custom configuration applied to chadrc.lua successfully."
 
 # --------- Step 7: Clone Dot Files Repository into the Home Folder -----------
 

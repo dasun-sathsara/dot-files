@@ -55,16 +55,3 @@ else
     usermod -aG sudo "$USER_NAME"
     success "User '$USER_NAME' created and added to sudo group with password '$USER_PASSWORD'."
 fi
-
-# ---------------------------- Step 2: Run Secondary Script --------------------
-
-SECONDARY_SCRIPT="/home/$USER_NAME/setup_dasun_environment_user.sh"
-
-info "Running secondary script as user '$USER_NAME'..."
-su - "$USER_NAME" -c "bash $SECONDARY_SCRIPT"
-check_exit_status "Failed to run secondary script as user '$USER_NAME'."
-
-success "All tasks completed successfully!"
-info "Please log out and log back in to apply all changes."
-
-exit 0
