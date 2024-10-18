@@ -109,10 +109,10 @@ for package in "${PACKAGES[@]}"; do
 done
 
 # --------------------- Step 4: Set Zsh as Default Shell ----------------------
-info "Setting Zsh as the default shell for the user."
-chsh -s $(which zsh)
-check_exit_status "Failed to set Zsh as the default shell."
-success "Zsh is now the default shell."
+# info "Setting Zsh as the default shell for the user."
+# chsh -s $(which zsh)
+# check_exit_status "Failed to set Zsh as the default shell."
+# success "Zsh is now the default shell."
 
 # --------------------- Step 5: Install Oh-My-Posh ----------------------------
 
@@ -126,3 +126,25 @@ if ! command -v oh-my-posh &>/dev/null; then
 else
     success "Oh My Posh is already installed."
 fi
+
+# ----------- Step 6: Install NvChad (a Neovim configuration) -----------------
+
+info "Installing NvChad..."
+git clone https://github.com/NvChad/starter ~/.config/nvim
+check_exit_status "Failed to install NvChad."
+success "NvChad installed successfully."
+
+# --------- Step 7: Clone Dot Files Repository into the Home Folder -----------
+
+info "Cloning dot-files repository into a temporary directory..."
+TMP_DIR="$HOME/tmp-dot-files"
+git clone https://github.com/dasun-sathsara/dot-files.git "$TMP_DIR"
+check_exit_status "Failed to clone the dot-files repository."
+
+info "Moving contents from temporary directory to home directory..."
+mv "$TMP_DIR"/.zshrc "$HOME"
+mv "$TMP_DIR"/.config/* "$HOME/.config"
+rm -rf "$TMP_DIR"
+check_exit_status "Failed to move dot-files to the home directory or clean up."
+
+success "dot-files repository processed successfully.
